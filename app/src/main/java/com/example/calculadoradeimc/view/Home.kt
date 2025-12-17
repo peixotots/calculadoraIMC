@@ -8,27 +8,33 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-
-
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -51,9 +57,17 @@ import com.example.calculadoradeimc.viewmodel.HomeViewModel
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
+import androidx.compose.ui.draw.rotate
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.res.fontResource
+import androidx.compose.ui.text.Placeholder
 import com.example.calculadoradeimc.domain.ActivityLevel
+import com.example.calculadoradeimc.ui.theme.Blue40
+import com.example.calculadoradeimc.ui.theme.GrayBlue
+import com.example.calculadoradeimc.ui.theme.Purple40
 import com.example.calculadoradeimc.ui.theme.Red
 
 
@@ -88,7 +102,8 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
             Button(
                 onClick = (onNavigateToHelp),
                 colors = ButtonDefaults.buttonColors(containerColor = White),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(260.dp, 5.dp, 20.dp, 0.dp)
             ) {
                 Text(
@@ -110,8 +125,84 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                     color = White
                 )
                 .verticalScroll(rememberScrollState())
+
         ) {
             Row(
+                modifier = Modifier.padding(25.dp, 10.dp, 0.dp, 0.dp),
+            ){
+                Text(
+                    text = "Selecione:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Blue
+                )
+            }
+            SexSelector(
+                selectedSex = sex,                       // vem do viewModel.sex
+                onSexSelected = { viewModel.onSexChange(it) },
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.padding(20.dp, 10.dp, 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                HeightCard(
+                    height = height,
+                    onHeightChange = { new -> viewModel.onHeightChange(new) },
+                    modifier = Modifier
+                        .weight(1f)              // lado ESQUERDO
+                        .height(320.dp)          // bem alto, como no exemplo
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f),             // lado DIREITO
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ){
+                    CounterCard(
+                        title = "Peso",
+                        value = weight.toIntOrNull() ?: 0,
+                        onIncrement = {
+                            viewModel.onWeightChange(
+                                (
+                                        weight.toFloatOrNull() ?: 0f + 1).toString()
+                            )
+                        },
+                        onDecrement = {
+                            viewModel.onWeightChange(
+                                (
+                                        weight.toFloatOrNull() ?: 0f + 1).coerceAtLeast(0f).toString()
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().height(150.dp)
+                    )
+                    CounterCard(
+                        title = "Idade",
+                        value = age.toIntOrNull() ?: 0,
+                        onIncrement = { viewModel.onAgeChange(((age.toIntOrNull() ?: 0) + 1).toString()) },
+                        onDecrement = { viewModel.onAgeChange(((age.toIntOrNull() ?: 0) - 1).coerceAtLeast(0).toString()) },
+                        modifier = Modifier.fillMaxWidth().height(150.dp)
+                    )
+                }
+
+
+
+            }
+             Row(
+                 horizontalArrangement = Arrangement.End,
+                 modifier = Modifier.padding(20.dp, 10.dp, 20.dp)
+
+                 ){
+
+
+            }
+
+
+
+
+
+            /*Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -248,12 +339,13 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                         cursorColor = Blue,
                     )
                 )
-            }
+            }*/
             Row(
                 modifier = Modifier.fillMaxWidth()
             ){
                 Text(
-                    text = "Nível de atividade Diária (escolha)",
+                    text = "Nível de atividade Diária:",
+                    color = Blue,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(20.dp, 20.dp, 0.dp, 0.dp)
@@ -271,23 +363,76 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ActivityLevel.values().forEach { level ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        ) {
                         RadioButton(
                             selected = selected == level,
                             onClick = { viewModel.onActivityLevelChange(level) },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = Blue,
+                                unselectedColor =Blue40,
+                                disabledSelectedColor = Blue,
+                                disabledUnselectedColor = Blue40
+                            )
 
                         )
                         Text(
                             level.label,
-                            modifier = Modifier.padding(start= 0.dp)
+                            modifier = Modifier.padding(start= 0.dp),
+                            color = Blue
                             )
 
                     }
                 }
             }
 
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Button(
+                    onClick = { viewModel.onCalculate() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Blue),
+
+                ) {
+                    Text(
+                        text = "CALCULAR",
+                        fontSize = 16.sp,
+                        color = White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                // Botão SALVAR (ViewModel usa os valores expostos age/sex)
+                Button(
+                    onClick = { viewModel.saveCurrentMeasurement() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Blue),
+
+                ) {
+                    Text(
+                        text = "SALVAR",
+                        fontSize = 16.sp,
+                        color = White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToHistory,
+                    colors = ButtonDefaults.buttonColors(containerColor = Blue),
+
+                ) {
+                    Text(text = "HISTÓRICO",
+                        color = White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
             // Botão CALCULAR (ViewModel decide usar extras se disponíveis)
-            Button(
+          /*  Button(
                 onClick = { viewModel.onCalculate() },
                 colors = ButtonDefaults.buttonColors(containerColor = Blue),
                 modifier = Modifier
@@ -333,7 +478,7 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
-            }
+            }*/
             //ALTERADO
             val isWarning = !resultMessage.contains("Peso Normal", ignoreCase = true)
             val resultColor = if(isWarning){
@@ -358,8 +503,270 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InfoCard(
+    title: String,
+    text: String,
+    onTextChange: (String) -> Unit,
+    isError: Boolean,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Card (
+        modifier = modifier,
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+            containerColor = GrayBlue,
+            contentColor =  White,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
+        ),
+        shape = RoundedCornerShape(16.dp)
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = text,
+                onValueChange = onTextChange,
+                label = {
+                    Text(text = placeholder)
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = White,
+                    focusedContainerColor = White,
+                    errorContainerColor = White,
+                    focusedLabelColor = Blue,
+                    focusedIndicatorColor = Blue,
+                    cursorColor = Blue,
+                ),
+                isError = isError
+
+            )
+
+        }
+    }
 
 
+}
+
+@Composable
+fun CounterCard(
+    title: String,
+    value: Int,
+    onIncrement: () -> Unit,
+    onDecrement: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+   Card(
+       modifier = modifier,
+       colors = CardDefaults.cardColors(
+           containerColor = Blue,
+           contentColor = White
+       ),
+       shape = RoundedCornerShape(24.dp),
+       elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+   ) {
+       Column(
+           modifier = Modifier
+               .fillMaxWidth()
+               .padding(16.dp),
+           horizontalAlignment = Alignment.CenterHorizontally
+       ){
+           Text(text = title,
+               style = MaterialTheme.typography.titleMedium)
+
+           Spacer(Modifier.height(12.dp))
+
+           Text(
+               text = value.toString(),
+               fontSize = 32.sp,
+               fontWeight = FontWeight.Bold
+           )
+           Spacer(Modifier.height(12.dp))
+
+           Row(
+               horizontalArrangement = Arrangement.spacedBy(24.dp),
+               verticalAlignment = Alignment.CenterVertically
+           ){
+               Button(
+                   onClick = onDecrement,
+                   shape = RoundedCornerShape(50),
+                   colors = ButtonDefaults.buttonColors(
+                       containerColor = White,
+                       contentColor = Blue
+                   )
+               ){
+                   Text(text = "-",
+                       fontSize = 20.sp,
+                       fontWeight = FontWeight.Bold
+                   )
+
+
+               }
+               Button(
+                   onClick = onIncrement,
+                   shape = RoundedCornerShape(50),
+                   colors = ButtonDefaults.buttonColors(
+                       containerColor = White,
+                       contentColor = Blue
+                   )
+               ){
+                   Text(text = "+",
+                       fontSize = 20.sp,
+                       fontWeight = FontWeight.Bold)
+               }
+           }
+       }
+   }
+}
+@Composable
+fun SexSelector(
+    selectedSex: String,
+    onSexSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SexButton(
+            label = "Masculino",
+            selected = selectedSex == "M",
+            onClick = { onSexSelected("M") },
+            modifier = Modifier.weight(1f)
+        )
+
+        SexButton(
+            label = "Feminino",
+            selected = selectedSex == "F",
+            onClick = { onSexSelected("F") },
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun SexButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(56.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) Blue else Color.Transparent,
+            contentColor = if (selected) White else Blue,
+        ),
+        border = if (selected) null else ButtonDefaults.outlinedButtonBorder
+    ) {
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+@Composable
+fun HeightCard(
+    height: String,
+    onHeightChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Converte String do ViewModel para Float com valor padrão
+    val heightValue = height.toFloatOrNull() ?: 170f
+
+    Card(
+        modifier = modifier.fillMaxWidth(0.7f),
+        colors = CardDefaults.cardColors(
+            containerColor = White,
+            contentColor = Blue
+        ),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Altura",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Blue
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Slider(
+                value = heightValue,
+                onValueChange = { newValue ->
+                    onHeightChange(newValue.toInt().toString())
+                },
+                valueRange = 120f..220f,          // faixa de altura em cm
+                steps = 220 - 120 - 1,           // valores inteiros
+                modifier = Modifier
+                    .fillMaxWidth(30f)
+                    .height(150.dp)// altura visível do slider
+                    .rotate(-90f),
+                colors = SliderDefaults.colors(
+                    thumbColor = Blue,
+                    activeTrackColor = White,
+                    inactiveTrackColor = White
+
+                )
+            )
+
+            Spacer(Modifier.height(30.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+
+            ) {
+                Text(
+                    text = heightValue.toInt().toString(),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Blue
+                )
+                Text(
+                    text = " cm",
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(start = 4.dp, 10.dp, 0.dp, 2.dp),
+                    color = Blue
+                )
+            }
+        }
+    }
+}
 
 
 
