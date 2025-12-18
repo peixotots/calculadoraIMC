@@ -93,5 +93,5 @@ UI Theme
 - Validação de dados de entrada para evitar valores inválidos ou inconsistentes.
 
 ### Integrantes 👥
-- Bruna Ribeiro Teodoro
+- Bruna Teodoro Ribeiro
 - Tainá Souza Peixoto
