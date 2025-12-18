@@ -19,11 +19,11 @@ class HomeViewModel(
     var height by mutableStateOf("")
         private set
 
-    var weight by mutableStateOf("")
+    var weight by mutableStateOf("70.0")
         private set
 
     // novos estados expostos
-    var age by mutableStateOf("")
+    var age by mutableStateOf("18")
         private set
 
     var sex by mutableStateOf("")

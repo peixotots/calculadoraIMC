@@ -3,6 +3,7 @@ package com.example.calculadoradeimc.view
 import android.R.attr.enabled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,7 +91,7 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
    // Text(activityLevel.label)
 
     Scaffold(
-        topBar = {
+        topBar ={
             TopAppBar(
                 title = {
                     Text(text = "Calculadora de IMC")
@@ -97,22 +99,39 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Blue,
                     titleContentColor = White
-                )
+                ),
+                actions ={
+                    Button(
+                        onClick = onNavigateToHelp,
+                        colors = ButtonDefaults.buttonColors(containerColor = White),
+                    ) {
+                        Text(
+                            text = "Ajuda",
+                            fontSize = 16.sp,
+                            color = Blue,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    /*Button(
+                    onClick = (onNavigateToHelp),
+                    colors = ButtonDefaults.buttonColors(containerColor = White),
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+
+                        .padding(260.dp, 15.dp, 20.dp, 0.dp),
+
+                    ) {
+                    Text(
+                        text = "Ajuda",
+                        fontSize = 16.sp,
+                        color = Blue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }*/}
+
             )
-            Button(
-                onClick = (onNavigateToHelp),
-                colors = ButtonDefaults.buttonColors(containerColor = White),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(260.dp, 5.dp, 20.dp, 0.dp)
-            ) {
-                Text(
-                    text = "Ajuda",
-                    fontSize = 16.sp,
-                    color = Blue,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+
         }
     ) { paddingValues ->
 
@@ -162,24 +181,26 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 ){
                     CounterCard(
                         title = "Peso",
-                        value = weight.toIntOrNull() ?: 0,
+                        value = String.format(
+                            "%.1f",
+                            viewModel.weight.replace(",", ".").toFloatOrNull() ?: 70f
+                        ),
                         onIncrement = {
-                            viewModel.onWeightChange(
-                                (
-                                        weight.toFloatOrNull() ?: 0f + 1).toString()
-                            )
+                            val current = viewModel.weight.replace(",", ".").toFloatOrNull() ?: 70f
+                            val newValue = current + 0.5f   // ou 1f se quiser
+                            viewModel.onWeightChange(String.format("%.1f", newValue))
                         },
                         onDecrement = {
-                            viewModel.onWeightChange(
-                                (
-                                        weight.toFloatOrNull() ?: 0f + 1).coerceAtLeast(0f).toString()
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth().height(150.dp)
+                            val current = viewModel.weight.replace(",", ".").toFloatOrNull() ?: 70f
+                            val newValue = (current - 0.5f).coerceAtLeast(0f)
+                            viewModel.onWeightChange(String.format("%.1f", newValue))
+                        }
                     )
+
+
                     CounterCard(
                         title = "Idade",
-                        value = age.toIntOrNull() ?: 0,
+                        value =(viewModel.age.toIntOrNull() ?: 18).toString(),
                         onIncrement = { viewModel.onAgeChange(((age.toIntOrNull() ?: 0) + 1).toString()) },
                         onDecrement = { viewModel.onAgeChange(((age.toIntOrNull() ?: 0) - 1).coerceAtLeast(0).toString()) },
                         modifier = Modifier.fillMaxWidth().height(150.dp)
@@ -389,18 +410,21 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+
             ){
                 Button(
                     onClick = { viewModel.onCalculate() },
                     colors = ButtonDefaults.buttonColors(containerColor = Blue),
+                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
 
                 ) {
                     Text(
                         text = "CALCULAR",
-                        fontSize = 16.sp,
+                        fontSize = 12.sp,
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -408,26 +432,31 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 Button(
                     onClick = { viewModel.saveCurrentMeasurement() },
                     colors = ButtonDefaults.buttonColors(containerColor = Blue),
+                    modifier = Modifier.padding(12.dp, 0.dp, 0.dp, 0.dp)
 
                 ) {
                     Text(
                         text = "SALVAR",
-                        fontSize = 16.sp,
+                        fontSize = 12.sp,
                         color = White,
-                        fontWeight = FontWeight.Bold
-                    )
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.SemiBold,
+                        )
                 }
 
                 Button(
                     onClick = onNavigateToHistory,
                     colors = ButtonDefaults.buttonColors(containerColor = Blue),
+                    modifier = Modifier.padding(12.dp, 0.dp, 20.dp, 0.dp)
+
 
                 ) {
                     Text(text = "HISTÓRICO",
                         color = White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.SemiBold,
+                         )
                 }
 
             }
@@ -480,7 +509,7 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 )
             }*/
             //ALTERADO
-            val isWarning = !resultMessage.contains("Peso Normal", ignoreCase = true)
+          /*  val isWarning = !resultMessage.contains("Peso Normal", ignoreCase = true)
             val resultColor = if(isWarning){
                 Color(0xFFC62828)
             } else {
@@ -496,6 +525,12 @@ fun Home(viewModel: HomeViewModel, onNavigateToHistory: () -> Unit, onNavigateTo
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
+            )*/
+            ResultCard(
+                resultMessage = resultMessage,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
             )
         }
 
@@ -574,7 +609,7 @@ fun InfoCard(
 @Composable
 fun CounterCard(
     title: String,
-    value: Int,
+    value: String,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     modifier: Modifier = Modifier
@@ -600,15 +635,16 @@ fun CounterCard(
            Spacer(Modifier.height(12.dp))
 
            Text(
-               text = value.toString(),
+               text = value,
                fontSize = 32.sp,
                fontWeight = FontWeight.Bold
            )
            Spacer(Modifier.height(12.dp))
 
            Row(
-               horizontalArrangement = Arrangement.spacedBy(24.dp),
+               horizontalArrangement = Arrangement.spacedBy(20.dp),
                verticalAlignment = Alignment.CenterVertically
+
            ){
                Button(
                    onClick = onDecrement,
@@ -732,14 +768,17 @@ fun HeightCard(
                 },
                 valueRange = 120f..220f,          // faixa de altura em cm
                 steps = 220 - 120 - 1,           // valores inteiros
-                modifier = Modifier
-                    .fillMaxWidth(30f)
-                    .height(150.dp)// altura visível do slider
+                modifier = Modifier.
+                height(150.dp)
+                    .width(400.dp)
+                    // altura visível do slider
                     .rotate(-90f),
                 colors = SliderDefaults.colors(
                     thumbColor = Blue,
                     activeTrackColor = White,
-                    inactiveTrackColor = White
+                    inactiveTrackColor = White,
+
+
 
                 )
             )
@@ -767,6 +806,40 @@ fun HeightCard(
         }
     }
 }
+
+@Composable
+fun ResultCard(
+    resultMessage: String,
+    modifier: Modifier = Modifier
+) {
+    val isWarning = !resultMessage.contains("Peso Normal", ignoreCase = true)
+    val resultColor = if (isWarning) {
+        Color(0xFFC62828)          // vermelho
+    } else {
+        Color(0xFF63B654)          // azul
+    }
+
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+            contentColor = resultColor      // cor do texto dentro do card
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Text(
+            text = resultMessage,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
+    }
+}
+
 
 
 
