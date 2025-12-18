@@ -8,5 +8,5 @@
 
 
 Integrantes:
-- Bruna Ribeiro Teodoro
+- Bruna Teodoro Ribeiro
 - Tainá Souza Peixoto
