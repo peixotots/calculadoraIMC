@@ -6,7 +6,7 @@ import kotlin.math.round
 class CalculateHealthMetricsUseCase {
 
     data class CalculationResult(
-         val healthResult: HealthResult? = null,
+        val healthResult: HealthResult? = null,
         val isError: Boolean = false,
         val errorMessage: String? = null
     )
@@ -58,9 +58,10 @@ class CalculateHealthMetricsUseCase {
             null
         }
         val idealWeight = calculateIdealWeight(hCm, sex)//CRIEI
-        val status = when{
-            rawImc < 18.5 || rawImc >=25.0 ->
+        val status = when {
+            rawImc < 18.5 || rawImc >= 25.0 ->
                 HealthStatus.WARNING
+
             else -> HealthStatus.OK
         }
 
@@ -76,10 +77,6 @@ class CalculateHealthMetricsUseCase {
             dailyCalories = dailyCalories
         )
         return CalculationResult(healthResult = result)
-
-
-
-
     }
 
     private fun classifyImc(imc: Double): String {
@@ -93,34 +90,33 @@ class CalculateHealthMetricsUseCase {
         }
     }
 
-    //VAI USAR A FORMULA DE DEVINE PARA CALCULAR O PESO IDEAL
-    private fun calculateIdealWeight(heightCm: Double, sex: String?): Double?{
-        if(sex == null) return null
+    //USA A FORMULA DE DEVINE PARA CALCULAR O PESO IDEAL
+    private fun calculateIdealWeight(heightCm: Double, sex: String?): Double? {
+        if (sex == null) return null
 
         val isMale = sex.uppercase().startsWith("M")
 
         val heightInches = heightCm / 2.54 //vai converter os centimetros para inches
 
-        val idealKg = if(isMale){
+        val idealKg = if (isMale) {
             50.0 + 2.3 * (heightInches - 60.0)
         } else {
-            45.5 + 2.3 *(heightInches - 60.0)
+            45.5 + 2.3 * (heightInches - 60.0)
         }
-        return (round(idealKg *100)/100.0)
+        return (round(idealKg * 100) / 100.0)
     }
 
-    //CALCULAR O NÍVEL DE ATIVIDADE PELO TMB
-
-    private fun calculateDailyCalories(tmb: Double?, activityLevel: ActivityLevel): Double?{
-        if(tmb == null) return null
-        val factor = when (activityLevel){
+    //CALCULA O NÍVEL DE ATIVIDADE PELO TMB
+    private fun calculateDailyCalories(tmb: Double?, activityLevel: ActivityLevel): Double? {
+        if (tmb == null) return null
+        val factor = when (activityLevel) {
             ActivityLevel.SEDENTARY -> 1.2
-            ActivityLevel.LIGHT ->  1.375
+            ActivityLevel.LIGHT -> 1.375
             ActivityLevel.INTENSE -> 1.725
             ActivityLevel.MODERATE -> 1.55
         }
 
         val raw = tmb * factor
-        return(kotlin.math.round(raw))
+        return (kotlin.math.round(raw))
     }
 }

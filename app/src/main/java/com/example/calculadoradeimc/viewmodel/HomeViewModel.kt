@@ -22,7 +22,6 @@ class HomeViewModel(
     var weight by mutableStateOf("70.0")
         private set
 
-    // novos estados expostos
     var age by mutableStateOf("18")
         private set
 
@@ -71,9 +70,10 @@ class HomeViewModel(
             textFieldError = false
             val hr = res.healthResult!!
             val tmbText = hr.tmb?.let { "\nTMB (estimada): ${it}" } ?: ""
-            val devineMessage = hr.idealWeightKg?.let{"\nPeso ideal (Devine): $it Kg"}
-            val calories = hr.dailyCalories?.let{"\n Calorias diárias (Sugestão) : $it"}
-            resultMessage = "IMC: ${hr.imc} - ${hr.imcClassification}$tmbText$devineMessage$calories"
+            val devineMessage = hr.idealWeightKg?.let { "\nPeso ideal (Devine): $it Kg" }
+            val calories = hr.dailyCalories?.let { "\n Calorias diárias (Sugestão) : $it" }
+            resultMessage =
+                "IMC: ${hr.imc} - ${hr.imcClassification}$tmbText$devineMessage$calories"
         }
     }
 
@@ -86,18 +86,13 @@ class HomeViewModel(
             textFieldError = false
             val hr = res.healthResult!!
             val tmbText = hr.tmb?.let { "\nTMB (estimada): ${it}" } ?: ""
-            val devineMessage = hr.idealWeightKg.let{"\nPeso ideal (Devine): ${it} Kg"}
+            val devineMessage = hr.idealWeightKg.let { "\nPeso ideal (Devine): ${it} Kg" }
             resultMessage = "IMC: ${hr.imc} - ${hr.imcClassification}$tmbText$devineMessage"
         }
     }
 
-    /**
-     * Salva a medição atual no banco (se houver repository disponível).
-     * Se age/sex não forem passados, usa os valores expostos no ViewModel.
-     */
     fun saveCurrentMeasurement(age: Int? = null, sex: String? = null) {
         if (repository == null) {
-            // repository não disponível (ex.: em testes), apenas retorna
             return
         }
 
@@ -132,9 +127,11 @@ class HomeViewModel(
             resultMessage = "Resultado salvo."
         }
     }
+
     var activityLevel by mutableStateOf(ActivityLevel.SEDENTARY)
         private set
-    fun onActivityLevelChange(level: ActivityLevel){
+
+    fun onActivityLevelChange(level: ActivityLevel) {
         activityLevel = level
     }
 }
